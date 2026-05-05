@@ -35,6 +35,7 @@ public class MvBinderStageEntry<T> : IMvBinderEntry
     }
 }
 
+
 public class MvStage<T> : IMvStageBase
 {
     public delegate void StageHandler(MvStagePayload<T> payload);
