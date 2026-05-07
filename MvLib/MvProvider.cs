@@ -1,91 +1,92 @@
-﻿namespace TinyMvCs.MvLib;
-
-public class Requester
+﻿namespace TinyMvCs.MvLib
 {
-    public Requester() {}
-    public Requester(object obj) {}
-    
-    public T Get<T>(object requester)
+    public class Requester
     {
-        return Get<T>(requester as Requester);
-    }
+        public Requester() {}
+        public Requester(object obj) {}
     
-    public virtual T Get<T>(Requester requester) where T: class
-    {
-        return null;
-    }
-}
-
-public class MvProvider
-{
-}
-
-public class MvProvider<T> where T: class
-{
-    public delegate T ProviderRequestDel(Requester requester);
+        public T Get<T>(object requester)
+        {
+            return Get<T>(requester as Requester);
+        }
     
-    private static ProviderRequestDel _providerRequestDel;
-
-    public virtual T Locate(Requester requester, T defaultValue)
-    {
-        return _providerRequestDel?.Invoke(requester) ?? defaultValue;
+        public virtual T Get<T>(Requester requester) where T: class
+        {
+            return null;
+        }
     }
 
-    public virtual T Locate(object requester, T defaultValue)
+    public class MvProvider
     {
-        return _providerRequestDel?.Invoke(new Requester(requester)) ?? defaultValue;
     }
 
-    public virtual void Register(ProviderRequestDel providerRequestDel)
+    public class MvProvider<T> where T: class
     {
-        _providerRequestDel = providerRequestDel;
-    }
+        public delegate T ProviderRequestDel(Requester requester);
     
-    public static MvProvider<T> Make(Requester requester)
-    {
-        return new MvProvider<T>();
-    }
-    
-    public static MvProvider<T> Make(MvProvider requester)
-    {
-        return new MvProvider<T>();
-    }
-    
-    public static MvProvider<T> Make(object requester)
-    {
-        return new MvProvider<T>();
-    }
-    
-    public static T Provider(Requester requester, T defaultValue)
-    {
-        return Make(requester).Locate(requester, defaultValue);
-    }
-    
-    public static T Provider(object requester, T defaultValue)
-    {
-        return Make(requester).Locate(requester, defaultValue);
-    }
-    
-    public static void Enroll(MvProvider provider, ProviderRequestDel providerRequestDel)
-    {
-        Make(provider).Register(providerRequestDel);
-    }
-    
-    public static void Enroll(object requester, ProviderRequestDel providerRequestDel)
-    {
-        Make(requester).Register(providerRequestDel);
-    }
-}
+        private static ProviderRequestDel _providerRequestDel;
 
-public class MvProviderNew<T> : MvProvider<T> where T : class, new()
-{
-    public static T Provider(Requester requester)
-    {
-        return Make(requester).Locate(requester, new T());
+        public virtual T Locate(Requester requester, T defaultValue)
+        {
+            return _providerRequestDel?.Invoke(requester) ?? defaultValue;
+        }
+
+        public virtual T Locate(object requester, T defaultValue)
+        {
+            return _providerRequestDel?.Invoke(new Requester(requester)) ?? defaultValue;
+        }
+
+        public virtual void Register(ProviderRequestDel providerRequestDel)
+        {
+            _providerRequestDel = providerRequestDel;
+        }
+    
+        public static MvProvider<T> Make(Requester requester)
+        {
+            return new MvProvider<T>();
+        }
+    
+        public static MvProvider<T> Make(MvProvider requester)
+        {
+            return new MvProvider<T>();
+        }
+    
+        public static MvProvider<T> Make(object requester)
+        {
+            return new MvProvider<T>();
+        }
+    
+        public static T Provider(Requester requester, T defaultValue)
+        {
+            return Make(requester).Locate(requester, defaultValue);
+        }
+    
+        public static T Provider(object requester, T defaultValue)
+        {
+            return Make(requester).Locate(requester, defaultValue);
+        }
+    
+        public static void Enroll(MvProvider provider, ProviderRequestDel providerRequestDel)
+        {
+            Make(provider).Register(providerRequestDel);
+        }
+    
+        public static void Enroll(object requester, ProviderRequestDel providerRequestDel)
+        {
+            Make(requester).Register(providerRequestDel);
+        }
     }
 
-    public static T Provider(object requester)
+    public class MvProviderNew<T> : MvProvider<T> where T : class, new()
     {
-        return Make(requester).Locate(requester, new T());
+        public static T Provider(Requester requester)
+        {
+            return Make(requester).Locate(requester, new T());
+        }
+
+        public static T Provider(object requester)
+        {
+            return Make(requester).Locate(requester, new T());
+        }
     }
 }

@@ -1,52 +1,53 @@
-﻿namespace TinyMvCs.MvLib;
-
-public interface IMvValueBase
+﻿namespace TinyMvCs.MvLib
 {
-    Type OfMvType();
-    void Attach(IMvMvvmBase mvMvvmBase);
-}
-public abstract class MvValue<T> : IMvValueBase
-{
-    private T _value;
-    public MvStage<T> OnUpdate { get; set; } = new(nameof(OnUpdate));
-    public MvStage<T> OnChanged { get; set; } = new(nameof(OnChanged));
-    
-    public T Set(T newBroadcastedValue)
+    public interface IMvValueBase
     {
-        MvStagePayload<T> mvStagePayload = new MvStagePayload<T>(_value, newBroadcastedValue);
-        if (!EqualityComparer<T>.Default.Equals(_value, newBroadcastedValue))
+        Type OfMvType();
+        void Attach(IMvMvvmBase mvMvvmBase);
+    }
+    public abstract class MvValue<T> : IMvValueBase
+    {
+        private T _value;
+        public MvStage<T> OnUpdate { get; set; } = new(nameof(OnUpdate));
+        public MvStage<T> OnChanged { get; set; } = new(nameof(OnChanged));
+    
+        public T Set(T newBroadcastedValue)
         {
-            _value = newBroadcastedValue;
-            OnChanged.InvokeCallbacks(mvStagePayload);
-        }
-        OnUpdate.InvokeCallbacks(mvStagePayload);
+            MvStagePayload<T> mvStagePayload = new MvStagePayload<T>(_value, newBroadcastedValue);
+            if (!EqualityComparer<T>.Default.Equals(_value, newBroadcastedValue))
+            {
+                _value = newBroadcastedValue;
+                OnChanged.InvokeCallbacks(mvStagePayload);
+            }
+            OnUpdate.InvokeCallbacks(mvStagePayload);
         
-        return newBroadcastedValue;
-    }
+            return newBroadcastedValue;
+        }
     
-    public T Value
-    {
-        get => _value;
-        set => Set(value);
+        public T Value
+        {
+            get => _value;
+            set => Set(value);
+        }
+
+        public abstract Type OfMvType();
+        public void Attach(IMvMvvmBase mvMvvmBase)
+        {
+            mvMvvmBase.Attach(this);
+        }
     }
 
-    public abstract Type OfMvType();
-    public void Attach(IMvMvvmBase mvMvvmBase)
+    public class MvValue<T, TMv> : MvValue<T> where TMv : MvMvvm<TMv>
     {
-        mvMvvmBase.Attach(this);
-    }
-}
+        public MvValue()
+        {
+            MvMvvm<TMv>.AddSingleThreadMvValueInst(this);
+        }
 
-public class MvValue<T, TMv> : MvValue<T> where TMv : MvMvvm<TMv>
-{
-    public MvValue()
-    {
-        MvMvvm<TMv>.AddSingleThreadMvValueInst(this);
-    }
+        public override Type OfMvType()
+        {
+            return typeof(T);
+        }
 
-    public override Type OfMvType()
-    {
-        return typeof(T);
     }
-
 }
